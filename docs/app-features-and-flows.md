@@ -10,16 +10,17 @@
 
 | # | Chức năng | Mô tả ngắn |
 |---|-----------|-------------|
-| 1 | Đăng ký & Đăng nhập | SĐT + OTP, tạo tài khoản nhanh |
+| 1 | Đăng ký & Đăng nhập | SĐT + OTP, max 2 account/thiết bị |
 | 2 | Tạo Profile | Tên, avatar, bio, sở thích, chọn thành phố |
-| 3 | Câu lạc bộ (Clubs) | Tạo/tham gia CLB theo sở thích |
+| 3 | Câu lạc bộ (Clubs) | Tạo (max 3)/tham gia CLB, auto-cancel nếu không hoạt động |
 | 4 | Tạo cuộc hẹn (Meetup) | Post cuộc hẹn: địa điểm + thời gian + mô tả |
-| 5 | Tham gia cuộc hẹn | Bấm tham gia → tự động vào group chat |
-| 6 | Group Chat | Chat nhóm chỉ cho người tham gia cuộc hẹn |
-| 7 | Thông báo (Push) | Noti khi có cuộc hẹn gần, có người tham gia, tin nhắn mới |
-| 8 | Khám phá (Explore) | Tìm CLB, cuộc hẹn gần đây trên bản đồ |
-| 9 | An toàn (Safety) | Xác thực danh tính, báo cáo, chặn, SOS |
-| 10 | Đánh giá sau hẹn | Rating & review sau mỗi cuộc hẹn |
+| 5 | **Mời bạn tham gia (Invite)** | **Host mời tối đa 10 members CLB vào cuộc hẹn** |
+| 6 | Tham gia cuộc hẹn | Bấm tham gia → tự động vào group chat |
+| 7 | Group Chat | Chat nhóm chỉ cho người tham gia cuộc hẹn |
+| 8 | Thông báo (Push) | Noti khi có cuộc hẹn gần, có người tham gia, tin nhắn mới |
+| 9 | Khám phá (Explore) | Tìm CLB, cuộc hẹn gần đây trên bản đồ |
+| 10 | An toàn (Safety) | Xác thực danh tính, báo cáo, chặn, SOS |
+| 11 | Đánh giá sau hẹn | Rating & review sau mỗi cuộc hẹn |
 
 ---
 
@@ -117,6 +118,17 @@
 - Chọn emoji icon
 - Upload ảnh bìa (tùy chọn)
 - Public / Private (cần invite code)
+- ⚠️ **Giới hạn:** Mỗi user chỉ được tạo tối đa **3 CLB**
+
+**🚨 Auto-Cancel CLB không hoạt động:**
+
+| Thời gian không có meetup | Hành động |
+|---------------------------|----------|
+| 2 tháng | ⚠️ Cảnh báo admin CLB: "CLB sẽ bị hủy sau 1 tháng nếu không có meetup" |
+| 3 tháng | 📦 Tự động ẩn khỏi explore (archived) |
+| 4 tháng | ❌ Xóa vĩnh viễn |
+
+> Admin CLB có thể **hồi sinh** bằng cách tạo meetup mới khi CLB còn trong giai đoạn cảnh báo hoặc archived.
 
 ---
 
@@ -146,6 +158,9 @@
                      │                                  │
                      │ → Auto tạo group chat room      │
                      │   (host là participant đầu tiên) │
+                     │                                  │
+                     │ → Hiện popup: "Mời bạn trong    │
+                     │   CLB tham gia?" [Mời] [Bỏ qua] │
                      └──────────────────────────────────┘
 ```
 
@@ -163,13 +178,14 @@
 │                                        │
 │ 🏷️ #cafe #photography #chill           │
 │                                        │
-│ ┌────────────┐  ┌───────────────┐      │
-│ │ Tham gia ▶ │  │ 💬 Chat (3)   │      │
-│ └────────────┘  └───────────────┘      │
+│ ┌────────────┐ ┌──────────┐ ┌───────┐  │
+│ │ Tham gia ▶ │ │ ✉️ Mời   │ │💬 (3) │  │
+│ └────────────┘ └──────────┘ └───────┘  │
 │                                        │
 │ Tạo bởi: Loan ✅  •  còn 2 giờ nữa    │
 └────────────────────────────────────────┘
 ```
+> Nút **✉️ Mời** chỉ hiển thị cho **Host** của cuộc hẹn.
 
 **Templates nhanh (Quick Create):**
 - ☕ **Cafe:** Pre-fill category + tags
@@ -178,6 +194,75 @@
 - 🎮 **Gaming:** Pre-fill category + tags
 - 🎬 **Xem phim:** Pre-fill category + tags
 - ✏️ **Tùy chỉnh:** Tự điền từ đầu
+
+---
+
+### Flow 3.5: Mời Bạn Trong CLB Tham Gia Cuộc Hẹn (Invite) ⭐
+
+```
+┌──────────────────┐     ┌──────────────────────────────────┐
+│ Host bấm nút     │     │ Danh sách members CLB            │
+│ [✉️ Mời] trên    │────▶│                                  │
+│ meetup card      │     │ ┌────────────────────────────┐   │
+│                  │     │ │ 🔍 Tìm tên...              │   │
+│ HOẶC             │     │ └────────────────────────────┘   │
+│                  │     │                                  │
+│ Popup sau khi    │     │ ☐ 👤 Minh          Online 🟢    │
+│ tạo meetup       │     │ ☑ 👤 Hương         Online 🟢    │
+└──────────────────┘     │ ☑ 👤 Tuấn          2h trước     │
+                         │ ☐ 👤 Linh          5h trước     │
+                         │ ☑ 👤 Khoa          Online 🟢    │
+                         │ ☐ 👤 Mai           1 ngày       │
+                         │ ...                              │
+                         │                                  │
+                         │ Đã chọn: 3/10                    │
+                         │                                  │
+                         │ ┌──────────────────────────────┐ │
+                         │ │   Gửi lời mời (3 người) ▶   │ │
+                         │ └──────────────────────────────┘ │
+                         └────────────────┬─────────────────┘
+                                          │
+                                   Bấm [Gửi]
+                                          │
+                                          ▼
+                         ┌──────────────────────────────────┐
+                         │ ✅ Đã gửi lời mời!               │
+                         │                                  │
+                         │ → 3 người nhận push noti:       │
+                         │   "Loan mời bạn: Cafe & Chụp    │
+                         │    hình tại Cộng lúc 15:00"     │
+                         │                                  │
+                         │ → Noti có 2 nút:                │
+                         │   [Tham gia ngay] [Từ chối]     │
+                         └──────────────────────────────────┘
+```
+
+**Quy tắc mời:**
+- Chỉ **Host** (người tạo meetup) mới được mời
+- Chỉ mời được **members trong cùng CLB** của meetup
+- Tối đa **10 lời mời** mỗi meetup (tránh spam)
+- Mỗi user chỉ nhận **1 lời mời** cho 1 meetup (không spam lại)
+- Người được mời có thể: **Tham gia** hoặc **Từ chối**
+- Từ chối = host không biết ai từ chối (tránh awkward)
+- Lời mời **hết hạn** khi meetup bắt đầu hoặc đầy người
+- Host có thể xem trạng thái: Đã mời (⏳) / Đã tham gia (✅) / Hết hạn (⌛)
+
+**Trạng thái lời mời:**
+```
+  Gửi mời         Người nhận hành động        Meetup đầy/bắt đầu
+     │                    │                          │
+     ▼                    ▼                          ▼
+ ┌────────┐    ┌───────────────────┐          ┌───────────┐
+ │PENDING │───▶│ ACCEPTED (auto    │          │ EXPIRED   │
+ │  ⏳     │    │ join meetup+chat) │          │   ⌛      │
+ └────────┘    └───────────────────┘          └───────────┘
+     │
+     ▼
+ ┌────────┐
+ │DECLINED│
+ │  (ẩn)  │
+ └────────┘
+```
 
 ---
 
@@ -289,6 +374,8 @@
 | Trigger | Nội dung noti | Ai nhận |
 |---------|--------------|---------|
 | Meetup mới trong CLB | "☕ Meetup mới: Cafe tại Cộng lúc 15:00" | Members CLB + users gần đó |
+| **Lời mời tham gia** | **"Loan mời bạn: Cafe & Chụp hình tại Cộng 15:00" [Tham gia] [Từ chối]** | **Members CLB được mời (max 10)** |
+| **Chấp nhận lời mời** | **"Minh đã chấp nhận lời mời cuộc hẹn của bạn"** | **Host** |
 | Có người tham gia | "Minh đã tham gia cuộc hẹn của bạn" | Host |
 | Tin nhắn mới | "Loan: Mang máy ảnh nha 📸" | Tất cả participants |
 | Meetup sắp bắt đầu | "⏰ Cuộc hẹn bắt đầu sau 30 phút!" | Tất cả participants |
@@ -432,10 +519,11 @@
 3. Chọn thành phố
 4. Duyệt & tham gia CLB
 5. Tạo cuộc hẹn (trong CLB hoặc public)
-6. Tham gia cuộc hẹn
-7. Group chat (text only)
-8. Push notifications (meetup mới, tin nhắn)
-9. Report & Block cơ bản
+6. **Mời members CLB tham gia cuộc hẹn (max 10 người)**
+7. Tham gia cuộc hẹn
+8. Group chat (text only)
+9. Push notifications (meetup mới, lời mời, tin nhắn)
+10. Report & Block cơ bản
 
 ### ❌ Chưa có trong MVP (Phase 2+)
 - Map view
