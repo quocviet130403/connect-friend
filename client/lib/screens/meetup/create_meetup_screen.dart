@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
 import '../../services/api_service.dart';
+import '../../services/location_service.dart';
 
 class CreateMeetupScreen extends StatefulWidget {
   const CreateMeetupScreen({super.key});
@@ -20,6 +21,9 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
   DateTime _selectedDate = DateTime.now().add(const Duration(hours: 2));
   TimeOfDay _selectedTime = TimeOfDay.now();
   bool _isSubmitting = false;
+  bool _isLoadingLocation = false;
+  double? _longitude;
+  double? _latitude;
 
   @override
   Widget build(BuildContext context) {
@@ -48,25 +52,98 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
                 prefixIcon: Icon(Icons.description),
               ),
             ),
-            const SizedBox(height: 14),
-            TextField(
-              controller: _placeNameCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Tên địa điểm *',
-                hintText: 'VD: Cộng Cà Phê',
-                prefixIcon: Icon(Icons.place),
-              ),
-            ),
-            const SizedBox(height: 14),
-            TextField(
-              controller: _placeAddrCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Địa chỉ',
-                hintText: 'VD: 26 Lý Tự Trọng, Q.1',
-                prefixIcon: Icon(Icons.map),
-              ),
-            ),
             const SizedBox(height: 20),
+
+            // =================== LOCATION SECTION ===================
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceDark,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.borderDark),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, color: AppTheme.accent, size: 20),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text('Địa điểm', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                      ),
+                      // GPS button
+                      SizedBox(
+                        height: 36,
+                        child: ElevatedButton.icon(
+                          onPressed: _isLoadingLocation ? null : _pickLocationFromGPS,
+                          icon: _isLoadingLocation
+                              ? const SizedBox(
+                                  width: 16, height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Icon(Icons.my_location, size: 16),
+                          label: Text(
+                            _isLoadingLocation ? 'Đang định vị...' : 'Vị trí hiện tại',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.accent,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Show GPS result
+                  if (_latitude != null && _longitude != null)
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.success.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: AppTheme.success, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '📍 ${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}',
+                              style: const TextStyle(fontSize: 12, color: AppTheme.success),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  TextField(
+                    controller: _placeNameCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Tên địa điểm *',
+                      hintText: 'VD: Cộng Cà Phê',
+                      prefixIcon: Icon(Icons.storefront),
+                      isDense: true,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: _placeAddrCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Địa chỉ',
+                      hintText: 'VD: 26 Lý Tự Trọng, Q.1',
+                      prefixIcon: Icon(Icons.map),
+                      isDense: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
 
             // Date picker
             ListTile(
@@ -105,7 +182,7 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
                 if (picked != null) setState(() => _selectedTime = picked);
               },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             // Max members
             Container(
@@ -158,10 +235,69 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
     );
   }
 
+  void _pickLocationFromGPS() async {
+    setState(() => _isLoadingLocation = true);
+
+    try {
+      final position = await LocationService.getCurrentPosition();
+
+      if (position == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Không thể lấy vị trí. Hãy bật định vị và cho phép quyền truy cập.'),
+              backgroundColor: AppTheme.warning,
+            ),
+          );
+        }
+        setState(() => _isLoadingLocation = false);
+        return;
+      }
+
+      setState(() {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+      });
+
+      // Reverse geocode to get address
+      final address = await LocationService.reverseGeocode(position.latitude, position.longitude);
+
+      if (address != null && mounted) {
+        setState(() {
+          if (_placeAddrCtrl.text.isEmpty) {
+            _placeAddrCtrl.text = address['short_address'] ?? address['display_name'] ?? '';
+          }
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('📍 Đã xác định vị trí: ${address['short_address'] ?? 'OK'}'),
+            backgroundColor: AppTheme.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi: $e'), backgroundColor: AppTheme.error),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingLocation = false);
+    }
+  }
+
   void _submit() async {
     if (_titleCtrl.text.trim().isEmpty || _placeNameCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng điền tiêu đề và địa điểm'), backgroundColor: AppTheme.warning),
+        const SnackBar(content: Text('Vui lòng điền tiêu đề và tên địa điểm'), backgroundColor: AppTheme.warning),
+      );
+      return;
+    }
+
+    if (_latitude == null || _longitude == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Hãy bấm "Vị trí hiện tại" để xác định tọa độ'), backgroundColor: AppTheme.warning),
       );
       return;
     }
@@ -179,8 +315,8 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
         'description': _descCtrl.text.trim(),
         'place_name': _placeNameCtrl.text.trim(),
         'place_address': _placeAddrCtrl.text.trim(),
-        'longitude': 106.6297, // Default HCM
-        'latitude': 10.8231,
+        'longitude': _longitude,
+        'latitude': _latitude,
         'start_time': startTime.toUtc().toIso8601String(),
         'max_members': _maxMembers,
         'tags': [],
