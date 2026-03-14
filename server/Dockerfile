@@ -13,8 +13,8 @@ RUN go mod download 2>/dev/null || true
 # Copy source
 COPY . .
 
-# Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/server ./cmd/api
+# Build static binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o /build/server ./cmd/api
 
 # Runtime stage
 FROM alpine:3.19
@@ -23,7 +23,7 @@ RUN apk add --no-cache ca-certificates tzdata
 
 WORKDIR /app
 
-COPY --from=builder /bin/server .
+COPY --from=builder /build/server ./server
 COPY --from=builder /app/.env .env
 
 EXPOSE 8080

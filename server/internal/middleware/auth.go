@@ -15,21 +15,28 @@ type Claims struct {
 
 func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var tokenStr string
+
+		// 1. Check Authorization header (REST APIs)
 		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
+		if authHeader != "" {
+			parts := strings.SplitN(authHeader, " ", 2)
+			if len(parts) == 2 && parts[0] == "Bearer" {
+				tokenStr = parts[1]
+			}
+		}
+
+		// 2. Fallback: check query param (WebSocket connections)
+		if tokenStr == "" {
+			tokenStr = c.Query("token")
+		}
+
+		if tokenStr == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Authorization required"})
 			return
 		}
 
-		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization format"})
-			return
-		}
-
-		tokenStr := parts[1]
 		claims := &Claims{}
-
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
 			return []byte(jwtSecret), nil
 		})
