@@ -54,6 +54,14 @@ client-ios:
 client-deps:
 	cd client && flutter pub get
 
+# Build APK for Android (sideload, no Play Store needed)
+build-apk:
+	cd client && flutter build apk --release
+
+# Build iOS (requires Mac + Apple Developer Account)
+build-ios:
+	cd client && flutter build ios --release
+
 # ---------- Utilities ----------
 
 # Open Mongo Express (DB admin panel)
