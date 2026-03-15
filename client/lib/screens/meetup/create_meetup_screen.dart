@@ -325,7 +325,7 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Đã tạo cuộc hẹn! 🎉'), backgroundColor: AppTheme.success),
         );
-        context.go('/meetups');
+        context.pop(true);
       }
     } on ApiException catch (e) {
       if (mounted) {

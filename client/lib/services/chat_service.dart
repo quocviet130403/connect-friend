@@ -84,14 +84,18 @@ class ChatService {
     _send({'type': 'leave_room', 'room_id': roomId});
   }
 
+  void markRead(String roomId) {
+    _send({'type': 'mark_read', 'room_id': roomId});
+  }
+
   void sendMessage(String roomId, String content, {String messageType = 'text'}) {
     _send({
       'type': 'send_message',
       'room_id': roomId,
-      'payload': jsonEncode({
+      'payload': {
         'content': content,
         'message_type': messageType,
-      }),
+      },
     });
   }
 

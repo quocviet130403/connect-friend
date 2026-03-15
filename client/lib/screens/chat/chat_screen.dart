@@ -24,6 +24,9 @@ class _ChatScreenState extends State<ChatScreen> {
   StreamSubscription? _sub;
   String? _myUserId;
 
+  // Profile cache: userId -> {display_name, avatar_url}
+  final Map<String, Map<String, dynamic>> _profiles = {};
+
   @override
   void initState() {
     super.initState();
@@ -34,7 +37,6 @@ class _ChatScreenState extends State<ChatScreen> {
   void _connectWS() {
     final token = _api.token;
     if (token != null) {
-      // Decode user ID from token for message alignment
       _myUserId = _decodeUserIdFromToken(token);
 
       _chatService.connect(token);
@@ -43,14 +45,30 @@ class _ChatScreenState extends State<ChatScreen> {
       _sub = _chatService.messages.listen((msg) {
         if (mounted && msg['room_id'] == widget.roomId) {
           final type = msg['type'];
+
           if (type == 'new_message') {
+            final senderId = msg['sender_id']?.toString() ?? '';
+            // Skip messages from self — already shown via optimistic insert
+            if (senderId == _myUserId) return;
+
             final data = msg['data'] ?? msg;
-            setState(() {
-              _messages.insert(0, data is Map<String, dynamic> ? data : <String, dynamic>{});
-            });
-            _scrollToBottom();
+            if (data is Map<String, dynamic>) {
+              setState(() => _messages.insert(0, data));
+              _ensureProfile(senderId);
+              _scrollToBottom();
+              // Auto mark read since chat is open
+              _chatService.markRead(widget.roomId);
+            }
+          } else if (type == 'read_update') {
+            // Someone read messages — reload to get updated read_by data
+            _reloadReadReceipts();
           }
         }
+      });
+
+      // Mark all existing messages as read when entering chat
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _chatService.markRead(widget.roomId);
       });
     }
   }
@@ -60,7 +78,6 @@ class _ChatScreenState extends State<ChatScreen> {
       final parts = token.split('.');
       if (parts.length != 3) return null;
       var payload = parts[1];
-      // Add padding
       while (payload.length % 4 != 0) {
         payload += '=';
       }
@@ -69,7 +86,6 @@ class _ChatScreenState extends State<ChatScreen> {
           Uri.parse('data:text/plain;base64,$payload').data!.contentAsBytes(),
         ),
       );
-      // Manual simple JSON parse for user_id
       final match = RegExp(r'"user_id"\s*:\s*"([^"]+)"').firstMatch(decoded);
       return match?.group(1);
     } catch (_) {
@@ -80,15 +96,80 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _loadMessages() async {
     try {
       final res = await _api.getMessages(widget.roomId);
+      final messages = ((res['data'] as List?) ?? [])
+          .map((m) => m as Map<String, dynamic>)
+          .toList();
+
       setState(() {
-        _messages = ((res['data'] as List?) ?? [])
-            .map((m) => m as Map<String, dynamic>)
-            .toList();
+        _messages = messages;
         _isLoading = false;
       });
+
+      _loadProfiles(messages);
     } catch (e) {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _reloadReadReceipts() async {
+    try {
+      final res = await _api.getMessages(widget.roomId);
+      final messages = ((res['data'] as List?) ?? [])
+          .map((m) => m as Map<String, dynamic>)
+          .toList();
+      if (mounted) {
+        setState(() => _messages = messages);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _loadProfiles(List<Map<String, dynamic>> messages) async {
+    final senderIds = messages
+        .map((m) => m['sender_id']?.toString() ?? '')
+        .where((id) => id.isNotEmpty && id != _myUserId && !_profiles.containsKey(id))
+        .toSet();
+
+    for (final id in senderIds) {
+      _ensureProfile(id);
+    }
+  }
+
+  Future<void> _ensureProfile(String userId) async {
+    if (userId.isEmpty || _profiles.containsKey(userId)) return;
+
+    try {
+      final res = await _api.getProfile(userId);
+      final data = res['data'];
+      if (data is Map<String, dynamic> && mounted) {
+        setState(() => _profiles[userId] = data);
+      }
+    } catch (_) {}
+  }
+
+  String _getSenderName(String senderId) {
+    if (senderId == _myUserId) return 'Bạn';
+    return _profiles[senderId]?['display_name'] ?? 'Thành viên';
+  }
+
+  String _getSenderAvatar(String senderId) {
+    return _profiles[senderId]?['avatar_url'] ?? '';
+  }
+
+  /// Get list of users who have read up to this message (excluding sender)
+  /// Only shows on the most recent (newest) message — like Messenger/Zalo
+  List<String> _getReadByUsers(int messageIndex) {
+    // Only show read receipts on the newest message (index 0 in reversed list)
+    if (messageIndex != 0) return [];
+
+    final msg = _messages[messageIndex];
+    final readBy = msg['read_by'] as List?;
+    if (readBy == null || readBy.isEmpty) return [];
+
+    final senderId = msg['sender_id']?.toString() ?? '';
+    return readBy
+        .map((r) => (r as Map<String, dynamic>)['user_id']?.toString() ?? '')
+        .where((uid) => uid.isNotEmpty && uid != senderId && uid != _myUserId)
+        .toList();
   }
 
   void _scrollToBottom() {
@@ -134,7 +215,6 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          // Messages
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -160,9 +240,34 @@ class _ChatScreenState extends State<ChatScreen> {
                           final msg = _messages[index];
                           final isSystem = msg['message_type'] == 'system';
                           if (isSystem) return _SystemMessage(content: msg['content'] ?? '');
+
+                          final isMine = _isMyMessage(msg);
+                          final senderId = msg['sender_id']?.toString() ?? '';
+                          final readByUsers = _getReadByUsers(index);
+
+                          // Show sender name if previous message is from a different sender
+                          bool showSender = false;
+                          if (!isMine) {
+                            if (index == _messages.length - 1) {
+                              showSender = true;
+                            } else {
+                              final prevMsg = _messages[index + 1];
+                              showSender = prevMsg['sender_id']?.toString() != senderId;
+                            }
+                          }
+
                           return _MessageBubble(
                             message: msg,
-                            isMine: _isMyMessage(msg),
+                            isMine: isMine,
+                            senderName: showSender ? _getSenderName(senderId) : null,
+                            avatarUrl: !isMine ? _getSenderAvatar(senderId) : null,
+                            showAvatar: showSender,
+                            readByAvatars: readByUsers
+                                .map((uid) => _ReadAvatarInfo(
+                                      name: _getSenderName(uid),
+                                      avatarUrl: _getSenderAvatar(uid),
+                                    ))
+                                .toList(),
                           );
                         },
                       ),
@@ -222,7 +327,6 @@ class _ChatScreenState extends State<ChatScreen> {
     final text = _messageCtrl.text.trim();
     if (text.isEmpty) return;
 
-    // Optimistic: show message immediately
     setState(() {
       _messages.insert(0, {
         'content': text,
@@ -247,45 +351,183 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
+class _ReadAvatarInfo {
+  final String name;
+  final String avatarUrl;
+  const _ReadAvatarInfo({required this.name, required this.avatarUrl});
+}
+
 class _MessageBubble extends StatelessWidget {
   final Map<String, dynamic> message;
   final bool isMine;
-  const _MessageBubble({required this.message, required this.isMine});
+  final String? senderName;
+  final String? avatarUrl;
+  final bool showAvatar;
+  final List<_ReadAvatarInfo> readByAvatars;
+
+  const _MessageBubble({
+    required this.message,
+    required this.isMine,
+    this.senderName,
+    this.avatarUrl,
+    this.showAvatar = false,
+    this.readByAvatars = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: EdgeInsets.only(
-          bottom: 8,
-          left: isMine ? 60 : 0,
-          right: isMine ? 0 : 60,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isMine ? AppTheme.primary.withValues(alpha: 0.2) : AppTheme.cardDark,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(18),
-            topRight: const Radius.circular(18),
-            bottomRight: Radius.circular(isMine ? 4 : 18),
-            bottomLeft: Radius.circular(isMine ? 18 : 4),
-          ),
-          border: Border.all(
-            color: isMine ? AppTheme.primary.withValues(alpha: 0.3) : AppTheme.borderDark,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            Text(message['content'] ?? '', style: const TextStyle(fontSize: 15)),
-            const SizedBox(height: 4),
-            Text(
-              _formatTime(message['created_at']),
-              style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: 4,
+        left: isMine ? 60 : 0,
+        right: isMine ? 0 : 60,
+      ),
+      child: Column(
+        crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          // Sender name
+          if (senderName != null)
+            Padding(
+              padding: EdgeInsets.only(left: isMine ? 0 : 44, bottom: 4, top: 8),
+              child: Text(
+                senderName!,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.textSecondary),
+              ),
             ),
-          ],
+
+          Row(
+            mainAxisAlignment: isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Avatar
+              if (!isMine)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: showAvatar
+                      ? CircleAvatar(
+                          radius: 16,
+                          backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                          backgroundImage: (avatarUrl != null && avatarUrl!.isNotEmpty) ? NetworkImage(avatarUrl!) : null,
+                          child: (avatarUrl == null || avatarUrl!.isEmpty)
+                              ? Text(
+                                  (senderName ?? '?')[0].toUpperCase(),
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                                )
+                              : null,
+                        )
+                      : const SizedBox(width: 32),
+                ),
+
+              // Bubble
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isMine ? AppTheme.primary.withValues(alpha: 0.2) : AppTheme.cardDark,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(18),
+                      topRight: const Radius.circular(18),
+                      bottomRight: Radius.circular(isMine ? 4 : 18),
+                      bottomLeft: Radius.circular(isMine ? 18 : 4),
+                    ),
+                    border: Border.all(
+                      color: isMine ? AppTheme.primary.withValues(alpha: 0.3) : AppTheme.borderDark,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    children: [
+                      Text(message['content'] ?? '', style: const TextStyle(fontSize: 15)),
+                      const SizedBox(height: 4),
+                      Text(
+                        _formatTime(message['created_at']),
+                        style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Read receipts — small avatars under the message
+          if (readByAvatars.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.only(
+                top: 4,
+                left: isMine ? 0 : 44,
+                bottom: 4,
+              ),
+              child: GestureDetector(
+                onTap: () => _showReadByDialog(context),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Stacked avatars
+                    SizedBox(
+                      height: 18,
+                      width: readByAvatars.length * 14.0 + 4,
+                      child: Stack(
+                        children: readByAvatars.take(5).toList().asMap().entries.map((entry) {
+                          final i = entry.key;
+                          final info = entry.value;
+                          return Positioned(
+                            left: i * 12.0,
+                            child: CircleAvatar(
+                              radius: 9,
+                              backgroundColor: AppTheme.surfaceDark,
+                              child: CircleAvatar(
+                                radius: 8,
+                                backgroundColor: AppTheme.accent.withValues(alpha: 0.2),
+                                backgroundImage: info.avatarUrl.isNotEmpty ? NetworkImage(info.avatarUrl) : null,
+                                child: info.avatarUrl.isEmpty
+                                    ? Text(info.name[0].toUpperCase(), style: const TextStyle(fontSize: 8, fontWeight: FontWeight.bold))
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Đã xem',
+                      style: TextStyle(fontSize: 10, color: AppTheme.textMuted.withValues(alpha: 0.7)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showReadByDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Đã xem', style: TextStyle(fontSize: 16)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: readByAvatars.map((info) {
+            return ListTile(
+              dense: true,
+              leading: CircleAvatar(
+                radius: 16,
+                backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                backgroundImage: info.avatarUrl.isNotEmpty ? NetworkImage(info.avatarUrl) : null,
+                child: info.avatarUrl.isEmpty
+                    ? Text(info.name[0].toUpperCase(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.primary))
+                    : null,
+              ),
+              title: Text(info.name, style: const TextStyle(fontSize: 14)),
+            );
+          }).toList(),
         ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Đóng')),
+        ],
       ),
     );
   }

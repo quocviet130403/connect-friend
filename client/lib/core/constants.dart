@@ -12,5 +12,5 @@ String get _host {
   return '10.0.2.2'; // Android emulator
 }
 
-final String baseUrl = 'http://$_host:8080/api/v1';
-final String wsUrl = 'ws://$_host:8080/ws';
+final String baseUrl = 'http://$_host:8090/api/v1';
+final String wsUrl = 'ws://$_host:8090/ws';

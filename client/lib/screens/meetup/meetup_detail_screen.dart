@@ -126,7 +126,7 @@ class _MeetupDetailScreenState extends State<MeetupDetailScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _meetup?['chat_room_id'] != null
-                        ? () => context.go('/chat/${_meetup!['chat_room_id']}?title=${Uri.encodeComponent(_meetup?['title'] ?? 'Chat')}')
+                        ? () => context.push('/chat/${_meetup!['chat_room_id']}?title=${Uri.encodeComponent(_meetup?['title'] ?? 'Chat')}')
                         : null,
                     icon: const Icon(Icons.chat_bubble_outline),
                     label: const Text('Group Chat'),

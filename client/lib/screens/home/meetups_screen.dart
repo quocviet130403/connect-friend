@@ -113,7 +113,10 @@ class _MeetupsScreenState extends State<MeetupsScreen> {
               ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/meetups/create'),
+        onPressed: () async {
+          final result = await context.push('/meetups/create');
+          if (result == true) _loadData();
+        },
         icon: const Icon(Icons.add),
         label: const Text('Tạo cuộc hẹn'),
         backgroundColor: AppTheme.primary,
