@@ -1,12 +1,12 @@
 # ===== Build stage =====
-FROM ghcr.io/cirruslabs/flutter:3.29.2 AS build
+FROM ghcr.io/cirruslabs/flutter:3.38.5 AS build
 
 WORKDIR /app
 COPY pubspec.* ./
 RUN flutter pub get
 
 COPY . .
-RUN flutter build web --release --web-renderer html
+RUN flutter build web --release
 
 # ===== Serve stage =====
 FROM nginx:alpine
