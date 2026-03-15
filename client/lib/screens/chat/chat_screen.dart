@@ -26,6 +26,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // Profile cache: userId -> {display_name, avatar_url}
   final Map<String, Map<String, dynamic>> _profiles = {};
+  // Read positions cache: messageIndex -> list of reader userIds
+  Map<int, List<String>> _readPositions = {};
 
   @override
   void initState() {
@@ -155,21 +157,40 @@ class _ChatScreenState extends State<ChatScreen> {
     return _profiles[senderId]?['avatar_url'] ?? '';
   }
 
-  /// Get list of users who have read up to this message (excluding sender)
-  /// Only shows on the most recent (newest) message — like Messenger/Zalo
+  /// Compute which readers should show under which message index.
+  /// Each reader's avatar appears at their NEWEST read message only (like Messenger).
+  /// Returns map: messageIndex → list of userIds
+  Map<int, List<String>> _computeReadPositions() {
+    final Map<String, int> readerNewestIndex = {};
+
+    for (int i = 0; i < _messages.length; i++) {
+      final readBy = _messages[i]['read_by'] as List?;
+      if (readBy == null) continue;
+
+      final senderId = _messages[i]['sender_id']?.toString() ?? '';
+
+      for (final r in readBy) {
+        final uid = (r as Map<String, dynamic>)['user_id']?.toString() ?? '';
+        if (uid.isEmpty || uid == _myUserId || uid == senderId) continue;
+
+        // Index 0 = newest (reversed list). First occurrence = newest read.
+        if (!readerNewestIndex.containsKey(uid)) {
+          readerNewestIndex[uid] = i;
+        }
+      }
+    }
+
+    // Invert: messageIndex → list of reader userIds
+    final Map<int, List<String>> result = {};
+    for (final entry in readerNewestIndex.entries) {
+      result.putIfAbsent(entry.value, () => []).add(entry.key);
+    }
+    return result;
+  }
+
+  /// Get readers whose "last read" is exactly this message
   List<String> _getReadByUsers(int messageIndex) {
-    // Only show read receipts on the newest message (index 0 in reversed list)
-    if (messageIndex != 0) return [];
-
-    final msg = _messages[messageIndex];
-    final readBy = msg['read_by'] as List?;
-    if (readBy == null || readBy.isEmpty) return [];
-
-    final senderId = msg['sender_id']?.toString() ?? '';
-    return readBy
-        .map((r) => (r as Map<String, dynamic>)['user_id']?.toString() ?? '')
-        .where((uid) => uid.isNotEmpty && uid != senderId && uid != _myUserId)
-        .toList();
+    return _readPositions[messageIndex] ?? [];
   }
 
   void _scrollToBottom() {
@@ -187,6 +208,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Recompute read positions on every build
+    _readPositions = _computeReadPositions();
+
     return Scaffold(
       appBar: AppBar(
         title: Column(
