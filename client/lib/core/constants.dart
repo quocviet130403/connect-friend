@@ -9,7 +9,7 @@ String get _host {
     // When accessing from phone on same WiFi: use LAN IP
     return Uri.base.host; // auto-detects: localhost or 192.168.x.x
   }
-  return '10.0.2.2'; // Android emulator
+  return '103.232.122.149'; // Android emulator
 }
 
 final String baseUrl = 'http://$_host:8090/api/v1';
