@@ -11,34 +11,38 @@ class HomeShell extends StatelessWidget {
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppTheme.borderDark, width: 0.5)),
+        decoration: BoxDecoration(
+          color: AppTheme.bgDark,
+          border: Border(top: BorderSide(color: AppTheme.borderDark.withValues(alpha: 0.3), width: 0.5)),
         ),
         child: NavigationBar(
-          backgroundColor: AppTheme.surfaceDark,
-          indicatorColor: AppTheme.primary.withValues(alpha: 0.15),
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          indicatorColor: AppTheme.primary.withValues(alpha: 0.12),
+          height: 60,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           selectedIndex: navigationShell.currentIndex,
           onDestinationSelected: (index) => navigationShell.goBranch(index),
           destinations: const [
             NavigationDestination(
-              icon: Icon(Icons.explore_outlined),
-              selectedIcon: Icon(Icons.explore, color: AppTheme.primary),
+              icon: Icon(Icons.explore_outlined, size: 24),
+              selectedIcon: Icon(Icons.explore, color: AppTheme.primary, size: 24),
               label: 'Khám phá',
             ),
             NavigationDestination(
-              icon: Icon(Icons.groups_outlined),
-              selectedIcon: Icon(Icons.groups, color: AppTheme.primary),
-              label: 'Câu lạc bộ',
+              icon: Icon(Icons.people_outline, size: 24),
+              selectedIcon: Icon(Icons.people, color: AppTheme.primary, size: 24),
+              label: 'Nhóm',
             ),
             NavigationDestination(
-              icon: Icon(Icons.event_outlined),
-              selectedIcon: Icon(Icons.event, color: AppTheme.primary),
+              icon: Icon(Icons.calendar_today_outlined, size: 22),
+              selectedIcon: Icon(Icons.calendar_today, color: AppTheme.primary, size: 22),
               label: 'Cuộc hẹn',
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_outlined),
-              selectedIcon: Icon(Icons.person, color: AppTheme.primary),
-              label: 'Hồ sơ',
+              icon: Icon(Icons.person_outline, size: 24),
+              selectedIcon: Icon(Icons.person, color: AppTheme.primary, size: 24),
+              label: 'Tôi',
             ),
           ],
         ),

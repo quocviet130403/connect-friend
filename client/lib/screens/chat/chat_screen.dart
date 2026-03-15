@@ -213,26 +213,42 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Row(
           children: [
-            Text(widget.meetupTitle, style: const TextStyle(fontSize: 16)),
-            Row(
-              children: [
-                Icon(
-                  _chatService.isConnected ? Icons.circle : Icons.circle_outlined,
-                  size: 8,
-                  color: _chatService.isConnected ? AppTheme.success : AppTheme.textMuted,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  _chatService.isConnected ? 'Đang kết nối' : 'Mất kết nối',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: _chatService.isConnected ? AppTheme.success : AppTheme.textMuted,
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+              child: const Icon(Icons.group, size: 16, color: AppTheme.primary),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(widget.meetupTitle, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: _chatService.isConnected ? AppTheme.success : AppTheme.textMuted,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _chatService.isConnected ? 'Đang hoạt động' : 'Mất kết nối',
+                        style: TextStyle(fontSize: 11, color: AppTheme.textSecondary, fontWeight: FontWeight.w400),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -301,8 +317,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Container(
             padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
             decoration: const BoxDecoration(
-              color: AppTheme.surfaceDark,
-              border: Border(top: BorderSide(color: AppTheme.borderDark)),
+              color: AppTheme.bgDark,
             ),
             child: SafeArea(
               top: false,
@@ -316,21 +331,22 @@ class _ChatScreenState extends State<ChatScreen> {
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _sendMessage(),
                       decoration: InputDecoration(
-                        hintText: 'Nhập tin nhắn...',
+                        hintText: 'Aa',
+                        hintStyle: const TextStyle(color: AppTheme.textMuted),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
-                        fillColor: AppTheme.cardDark,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        fillColor: AppTheme.inputBg,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Container(
                     decoration: const BoxDecoration(
-                      gradient: LinearGradient(colors: [AppTheme.primary, AppTheme.primaryDark]),
+                      color: AppTheme.primary,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
@@ -447,25 +463,31 @@ class _MessageBubble extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: isMine ? AppTheme.primary.withValues(alpha: 0.2) : AppTheme.cardDark,
+                    color: isMine ? AppTheme.myBubble : AppTheme.otherBubble,
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(18),
                       topRight: const Radius.circular(18),
                       bottomRight: Radius.circular(isMine ? 4 : 18),
                       bottomLeft: Radius.circular(isMine ? 18 : 4),
                     ),
-                    border: Border.all(
-                      color: isMine ? AppTheme.primary.withValues(alpha: 0.3) : AppTheme.borderDark,
-                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                     children: [
-                      Text(message['content'] ?? '', style: const TextStyle(fontSize: 15)),
-                      const SizedBox(height: 4),
+                      Text(
+                        message['content'] ?? '',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: isMine ? Colors.white : AppTheme.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
                       Text(
                         _formatTime(message['created_at']),
-                        style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isMine ? Colors.white.withValues(alpha: 0.6) : AppTheme.textMuted,
+                        ),
                       ),
                     ],
                   ),

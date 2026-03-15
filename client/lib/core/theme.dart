@@ -2,24 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Colors
-  static const Color primary = Color(0xFF6C5CE7);
-  static const Color primaryLight = Color(0xFF8B7BF7);
-  static const Color primaryDark = Color(0xFF5041C9);
-  static const Color secondary = Color(0xFF00CEC9);
-  static const Color accent = Color(0xFFFD79A8);
-  static const Color success = Color(0xFF00B894);
-  static const Color warning = Color(0xFFFDCB6E);
-  static const Color error = Color(0xFFD63031);
+  // Messenger/Instagram-inspired colors
+  static const Color primary = Color(0xFF0084FF);        // Messenger blue
+  static const Color primaryLight = Color(0xFF44A0FF);
+  static const Color primaryDark = Color(0xFF0066CC);
+  static const Color secondary = Color(0xFF00D4AA);      // Teal accent
+  static const Color accent = Color(0xFFFF6B6B);         // Warm coral
+  static const Color success = Color(0xFF2ED573);
+  static const Color warning = Color(0xFFFFBE76);
+  static const Color error = Color(0xFFFF4757);
 
-  // Dark theme colors
-  static const Color bgDark = Color(0xFF0D1117);
-  static const Color surfaceDark = Color(0xFF161B22);
-  static const Color cardDark = Color(0xFF1C2333);
-  static const Color borderDark = Color(0xFF30363D);
-  static const Color textPrimary = Color(0xFFF0F6FC);
-  static const Color textSecondary = Color(0xFF8B949E);
-  static const Color textMuted = Color(0xFF484F58);
+  // Dark theme — warm, not GitHub-cold
+  static const Color bgDark = Color(0xFF000000);         // Pure black (like IG)
+  static const Color surfaceDark = Color(0xFF1A1A1A);    // Warm dark
+  static const Color cardDark = Color(0xFF262626);       // IG card color
+  static const Color borderDark = Color(0xFF363636);     // Subtle border
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFFBCBCBC);  // Brighter for contrast
+  static const Color textMuted = Color(0xFF8E8E8E);      // Visible on black bg
+
+  // Chat-specific
+  static const Color myBubble = Color(0xFF0084FF);       // Messenger blue
+  static const Color otherBubble = Color(0xFF303030);    // Dark grey
+  static const Color inputBg = Color(0xFF303030);
 
   static ThemeData get darkTheme {
     return ThemeData(
@@ -42,10 +47,11 @@ class AppTheme {
         backgroundColor: bgDark,
         elevation: 0,
         scrolledUnderElevation: 0,
+        centerTitle: false,
         titleTextStyle: GoogleFonts.inter(
           color: textPrimary,
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
         ),
         iconTheme: const IconThemeData(color: textPrimary),
       ),
@@ -53,26 +59,27 @@ class AppTheme {
         color: cardDark,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: borderDark, width: 1),
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(color: borderDark.withValues(alpha: 0.5)),
         ),
+        margin: EdgeInsets.zero,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: surfaceDark,
+        fillColor: cardDark,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: borderDark),
+          borderRadius: BorderRadius.circular(24),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: borderDark),
+          borderRadius: BorderRadius.circular(24),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primary, width: 2),
+          borderRadius: BorderRadius.circular(24),
+          borderSide: const BorderSide(color: primary, width: 1.5),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         hintStyle: const TextStyle(color: textMuted),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -82,10 +89,10 @@ class AppTheme {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(24),
           ),
           textStyle: GoogleFonts.inter(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -95,22 +102,22 @@ class AppTheme {
           foregroundColor: primary,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(24),
           ),
-          side: const BorderSide(color: primary),
+          side: const BorderSide(color: borderDark),
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: surfaceDark,
+        backgroundColor: bgDark,
         selectedItemColor: primary,
         unselectedItemColor: textMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: surfaceDark,
+        backgroundColor: cardDark,
         selectedColor: primary.withValues(alpha: 0.2),
-        labelStyle: GoogleFonts.inter(fontSize: 13),
+        labelStyle: GoogleFonts.inter(fontSize: 13, color: textPrimary),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: const BorderSide(color: borderDark),
@@ -119,7 +126,15 @@ class AppTheme {
       ),
       dividerTheme: const DividerThemeData(
         color: borderDark,
-        thickness: 1,
+        thickness: 0.5,
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
+        ),
       ),
     );
   }
