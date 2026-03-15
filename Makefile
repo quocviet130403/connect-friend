@@ -1,4 +1,4 @@
-.PHONY: dev up down build logs clean
+.PHONY: dev up down build logs clean client client-web client-ios
 
 # Start all services (MongoDB + Redis + Server)
 up:
@@ -36,10 +36,30 @@ dev:
 tidy:
 	cd server && go mod tidy
 
+# ---------- Client (Flutter) ----------
+
+# Run Flutter client on Android
+client:
+	cd client && flutter run
+
+# Run Flutter client on Chrome (web)
+client-web:
+	cd client && flutter run -d chrome
+
+# Run Flutter client on iOS
+client-ios:
+	cd client && flutter run -d ios
+
+# Install client dependencies
+client-deps:
+	cd client && flutter pub get
+
+# ---------- Utilities ----------
+
 # Open Mongo Express (DB admin panel)
 mongo-ui:
-	start http://localhost:8081
+	start http://localhost:8082
 
 # Test API health
 health:
-	curl -s http://localhost:8080/health | python -m json.tool
+	curl -s http://localhost:8090/health | python -m json.tool
