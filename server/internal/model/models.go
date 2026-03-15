@@ -128,7 +128,13 @@ type ChatMessage struct {
 	SenderID    primitive.ObjectID `bson:"sender_id" json:"sender_id"`
 	Content     string             `bson:"content" json:"content"`
 	MessageType string             `bson:"message_type" json:"message_type"` // text, location, system
+	ReadBy      []ReadReceipt      `bson:"read_by,omitempty" json:"read_by"`
 	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
+}
+
+type ReadReceipt struct {
+	UserID primitive.ObjectID `bson:"user_id" json:"user_id"`
+	ReadAt time.Time          `bson:"read_at" json:"read_at"`
 }
 
 // ========== Notification ==========

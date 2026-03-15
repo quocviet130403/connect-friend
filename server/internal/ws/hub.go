@@ -230,6 +230,41 @@ func (c *Client) readPump() {
 				RoomID:  wsMsg.RoomID,
 				Message: msgBytes,
 			}
+
+		case "mark_read":
+			userObjID, _ := primitive.ObjectIDFromHex(c.userID)
+			roomObjID, _ := primitive.ObjectIDFromHex(wsMsg.RoomID)
+			now := time.Now()
+
+			// Mark all unread messages in this room as read by this user
+			ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+			c.hub.messages.UpdateMany(ctx, map[string]interface{}{
+				"room_id": roomObjID,
+				"read_by.user_id": map[string]interface{}{
+					"$ne": userObjID,
+				},
+			}, map[string]interface{}{
+				"$addToSet": map[string]interface{}{
+					"read_by": model.ReadReceipt{
+						UserID: userObjID,
+						ReadAt: now,
+					},
+				},
+			})
+			cancel()
+
+			// Broadcast read_update to room
+			readUpdate := BroadcastMessage{
+				Type:      "read_update",
+				RoomID:    wsMsg.RoomID,
+				SenderID:  c.userID,
+				Timestamp: now,
+			}
+			readBytes, _ := json.Marshal(readUpdate)
+			c.hub.broadcast <- &RoomMessage{
+				RoomID:  wsMsg.RoomID,
+				Message: readBytes,
+			}
 		}
 	}
 }

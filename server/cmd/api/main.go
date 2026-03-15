@@ -129,6 +129,7 @@ func main() {
 	{
 		chat.GET("/:roomId/messages", chatHandler.GetMessages)
 		chat.POST("/:roomId/messages", chatHandler.SendMessage)
+		chat.PUT("/:roomId/read", chatHandler.MarkRead)
 	}
 
 	// Notifications

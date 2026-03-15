@@ -165,3 +165,52 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 
 	Created(c, msg)
 }
+
+// PUT /api/v1/chat/:roomId/read
+func (h *ChatHandler) MarkRead(c *gin.Context) {
+	userID := middleware.GetUserID(c)
+	userObjID, _ := primitive.ObjectIDFromHex(userID)
+	roomID := c.Param("roomId")
+	roomObjID, err := primitive.ObjectIDFromHex(roomID)
+	if err != nil {
+		BadRequest(c, "Invalid room ID")
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Verify user is a participant
+	var chatRoom model.ChatRoom
+	err = h.chatRooms.FindOne(ctx, bson.M{"_id": roomObjID}).Decode(&chatRoom)
+	if err != nil {
+		NotFound(c, "Chat room not found")
+		return
+	}
+	count, _ := h.participants.CountDocuments(ctx, bson.M{
+		"meetup_id": chatRoom.MeetupID,
+		"user_id":   userObjID,
+		"status":    "joined",
+	})
+	if count == 0 {
+		Forbidden(c, "Only meetup participants can mark messages as read")
+		return
+	}
+
+	now := time.Now()
+	h.messages.UpdateMany(ctx, bson.M{
+		"room_id": roomObjID,
+		"read_by.user_id": bson.M{
+			"$ne": userObjID,
+		},
+	}, bson.M{
+		"$addToSet": bson.M{
+			"read_by": model.ReadReceipt{
+				UserID: userObjID,
+				ReadAt: now,
+			},
+		},
+	})
+
+	OK(c, map[string]interface{}{"message": "Messages marked as read"})
+}

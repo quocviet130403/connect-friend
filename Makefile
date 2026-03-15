@@ -62,6 +62,18 @@ build-apk:
 build-ios:
 	cd client && flutter build ios --release
 
+# ---------- Database ----------
+
+# Seed demo accounts (password: 123456)
+seed:
+	docker exec connect-friend-mongo-1 mongosh --file /seed-demo.js
+	@echo "Done! Check output above for demo accounts."
+
+# Copy seed file into container and run
+seed-run:
+	docker cp server/migrations/seed-demo.js connect-friend-mongo-1:/seed-demo.js
+	docker exec connect-friend-mongo-1 mongosh --file /seed-demo.js
+
 # ---------- Utilities ----------
 
 # Open Mongo Express (DB admin panel)

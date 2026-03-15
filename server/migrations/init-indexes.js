@@ -37,6 +37,7 @@ db.meetup_invites.createIndex({ invitee_id: 1, status: 1 });
 
 // ========== Chat Messages ==========
 db.chat_messages.createIndex({ room_id: 1, created_at: -1 });
+db.chat_messages.createIndex({ "read_by.user_id": 1 });
 
 // ========== Chat Rooms ==========
 db.chat_rooms.createIndex({ meetup_id: 1 }, { unique: true });
