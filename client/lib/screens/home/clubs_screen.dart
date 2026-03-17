@@ -71,7 +71,7 @@ class _ClubsScreenState extends State<ClubsScreen> {
                       });
                       _loadClubs();
                     },
-                    selectedColor: AppTheme.primary.withValues(alpha: 0.2),
+                    selectedColor: AppTheme.primary.withValues(alpha: 0.12),
                     checkmarkColor: AppTheme.primary,
                   ),
                 );
@@ -110,12 +110,10 @@ class _ClubsScreenState extends State<ClubsScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // TODO: Create club dialog
           _showCreateClubDialog();
         },
         icon: const Icon(Icons.add),
         label: const Text('Tạo CLB'),
-        backgroundColor: AppTheme.primary,
       ),
     );
   }
@@ -146,7 +144,7 @@ class _ClubsScreenState extends State<ClubsScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppTheme.cardDark,
+      backgroundColor: AppTheme.bg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -223,7 +221,7 @@ class _ClubCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
@@ -252,12 +250,12 @@ class _ClubCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppTheme.secondary.withValues(alpha: 0.1),
+                  color: AppTheme.secondary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   club['category'] ?? '',
-                  style: const TextStyle(fontSize: 10, color: AppTheme.secondary),
+                  style: const TextStyle(fontSize: 10, color: AppTheme.secondary, fontWeight: FontWeight.w500),
                 ),
               ),
             ],

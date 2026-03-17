@@ -12,13 +12,13 @@ class HomeShell extends StatelessWidget {
       body: navigationShell,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: AppTheme.bgDark,
-          border: Border(top: BorderSide(color: AppTheme.borderDark.withValues(alpha: 0.3), width: 0.5)),
+          color: AppTheme.bg,
+          border: Border(top: BorderSide(color: AppTheme.border.withValues(alpha: 0.5), width: 0.5)),
         ),
         child: NavigationBar(
           backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
-          indicatorColor: AppTheme.primary.withValues(alpha: 0.12),
+          indicatorColor: AppTheme.primary.withValues(alpha: 0.1),
           height: 60,
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           selectedIndex: navigationShell.currentIndex,

@@ -9,11 +9,11 @@ import 'services/api_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set system UI overlay style for dark theme
+  // Set system UI overlay style for light theme
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: AppTheme.surfaceDark,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarColor: AppTheme.bg,
   ));
 
   // Initialize API service (load saved tokens)
@@ -37,7 +37,7 @@ class ConnectApp extends StatelessWidget {
           return MaterialApp.router(
             title: 'Connect',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.darkTheme,
+            theme: AppTheme.lightTheme,
             routerConfig: router,
           );
         },

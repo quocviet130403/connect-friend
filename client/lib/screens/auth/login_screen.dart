@@ -38,6 +38,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       colors: [AppTheme.primary, AppTheme.secondary],
                     ),
                     borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: const Icon(Icons.connect_without_contact, size: 40, color: Colors.white),
                 ),
@@ -99,8 +106,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         padding: const EdgeInsets.all(12),
                         margin: const EdgeInsets.only(top: 8),
                         decoration: BoxDecoration(
-                          color: AppTheme.error.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: AppTheme.error.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTheme.error.withValues(alpha: 0.2)),
                         ),
                         child: Row(
                           children: [

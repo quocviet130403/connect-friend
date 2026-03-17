@@ -85,8 +85,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         padding: const EdgeInsets.all(12),
                         margin: const EdgeInsets.only(top: 16),
                         decoration: BoxDecoration(
-                          color: AppTheme.error.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: AppTheme.error.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTheme.error.withValues(alpha: 0.2)),
                         ),
                         child: Text(auth.error!, style: const TextStyle(color: AppTheme.error, fontSize: 13)),
                       )
@@ -99,18 +100,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  color: AppTheme.primary.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
+                  border: Border.all(color: AppTheme.primary.withValues(alpha: 0.15)),
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.info_outline, color: AppTheme.primaryLight, size: 18),
+                    Icon(Icons.info_outline, color: AppTheme.primary, size: 18),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Mỗi thiết bị tối đa 2 tài khoản',
-                        style: TextStyle(color: AppTheme.primaryLight, fontSize: 13),
+                        style: TextStyle(color: AppTheme.primary, fontSize: 13),
                       ),
                     ),
                   ],
@@ -156,7 +157,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (phone.isEmpty || password.isEmpty) return;
     if (password != confirm) {
-      context.read<AuthProvider>()..clearError();
+      context.read<AuthProvider>().clearError();
       // Show error through snackbar since it's a local validation
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Mật khẩu không khớp'), backgroundColor: AppTheme.error),

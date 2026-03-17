@@ -64,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           CircleAvatar(
                             radius: 50,
-                            backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                            backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
                             child: Text(
                               _getInitial(),
                               style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppTheme.primary),
@@ -75,9 +75,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             right: 0,
                             child: Container(
                               padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 color: AppTheme.primary,
                                 shape: BoxShape.circle,
+                                border: Border.all(color: AppTheme.bg, width: 2),
                               ),
                               child: const Icon(Icons.camera_alt, size: 16, color: Colors.white),
                             ),
@@ -150,9 +151,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [AppTheme.primary.withValues(alpha: 0.2), AppTheme.secondary.withValues(alpha: 0.2)],
+                              colors: [AppTheme.primary.withValues(alpha: 0.08), AppTheme.secondary.withValues(alpha: 0.08)],
                             ),
                             borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppTheme.primary.withValues(alpha: 0.15)),
                           ),
                           child: Text(v.toString(), style: const TextStyle(fontSize: 13)),
                         )).toList(),
@@ -205,7 +207,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppTheme.cardDark,
+      backgroundColor: AppTheme.bg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),

@@ -221,7 +221,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+              backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
               child: const Icon(Icons.group, size: 16, color: AppTheme.primary),
             ),
             const SizedBox(width: 10),
@@ -316,8 +316,9 @@ class _ChatScreenState extends State<ChatScreen> {
           // Input bar
           Container(
             padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-            decoration: const BoxDecoration(
-              color: AppTheme.bgDark,
+            decoration: BoxDecoration(
+              color: AppTheme.bg,
+              border: Border(top: BorderSide(color: AppTheme.border.withValues(alpha: 0.5), width: 0.5)),
             ),
             child: SafeArea(
               top: false,
@@ -334,6 +335,14 @@ class _ChatScreenState extends State<ChatScreen> {
                         hintText: 'Aa',
                         hintStyle: const TextStyle(color: AppTheme.textMuted),
                         border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                           borderSide: BorderSide.none,
                         ),
@@ -446,7 +455,7 @@ class _MessageBubble extends StatelessWidget {
                   child: showAvatar
                       ? CircleAvatar(
                           radius: 16,
-                          backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                          backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
                           backgroundImage: (avatarUrl != null && avatarUrl!.isNotEmpty) ? NetworkImage(avatarUrl!) : null,
                           child: (avatarUrl == null || avatarUrl!.isEmpty)
                               ? Text(
@@ -521,10 +530,10 @@ class _MessageBubble extends StatelessWidget {
                             left: i * 12.0,
                             child: CircleAvatar(
                               radius: 9,
-                              backgroundColor: AppTheme.surfaceDark,
+                              backgroundColor: AppTheme.bg,
                               child: CircleAvatar(
                                 radius: 8,
-                                backgroundColor: AppTheme.accent.withValues(alpha: 0.2),
+                                backgroundColor: AppTheme.accent.withValues(alpha: 0.1),
                                 backgroundImage: info.avatarUrl.isNotEmpty ? NetworkImage(info.avatarUrl) : null,
                                 child: info.avatarUrl.isEmpty
                                     ? Text(info.name[0].toUpperCase(), style: const TextStyle(fontSize: 8, fontWeight: FontWeight.bold))
@@ -561,7 +570,7 @@ class _MessageBubble extends StatelessWidget {
               dense: true,
               leading: CircleAvatar(
                 radius: 16,
-                backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
                 backgroundImage: info.avatarUrl.isNotEmpty ? NetworkImage(info.avatarUrl) : null,
                 child: info.avatarUrl.isEmpty
                     ? Text(info.name[0].toUpperCase(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.primary))
@@ -600,7 +609,7 @@ class _SystemMessage extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTheme.surface,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(content, style: const TextStyle(fontSize: 12, color: AppTheme.textMuted)),

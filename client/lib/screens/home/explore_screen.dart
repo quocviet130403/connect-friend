@@ -87,7 +87,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.1),
+              color: AppTheme.primary.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.explore, size: 48, color: AppTheme.primary),
@@ -176,11 +176,11 @@ class _MeetupCard extends StatelessWidget {
                     style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
                   ),
                   const Spacer(),
-                  const Icon(Icons.people_outline, size: 16, color: AppTheme.primaryLight),
+                  const Icon(Icons.people_outline, size: 16, color: AppTheme.primary),
                   const SizedBox(width: 4),
                   Text(
                     '${meetup['current_count'] ?? 0}/${meetup['max_members'] ?? 0}',
-                    style: const TextStyle(fontSize: 13, color: AppTheme.primaryLight, fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontSize: 13, color: AppTheme.primary, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -194,12 +194,12 @@ class _MeetupCard extends StatelessWidget {
                   children: (meetup['tags'] as List).take(3).map((tag) => Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withValues(alpha: 0.1),
+                      color: AppTheme.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       '#$tag',
-                      style: const TextStyle(fontSize: 11, color: AppTheme.primaryLight),
+                      style: const TextStyle(fontSize: 11, color: AppTheme.primary),
                     ),
                   )).toList(),
                 ),
@@ -239,7 +239,7 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),

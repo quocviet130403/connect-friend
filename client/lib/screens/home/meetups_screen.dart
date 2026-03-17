@@ -62,7 +62,7 @@ class _MeetupsScreenState extends State<MeetupsScreen> {
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: AppTheme.accent.withValues(alpha: 0.1),
+                                color: AppTheme.accent.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(Icons.mail, size: 18, color: AppTheme.accent),
@@ -119,7 +119,6 @@ class _MeetupsScreenState extends State<MeetupsScreen> {
         },
         icon: const Icon(Icons.add),
         label: const Text('Tạo cuộc hẹn'),
-        backgroundColor: AppTheme.primary,
       ),
     );
   }
@@ -179,7 +178,7 @@ class _InviteCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppTheme.accent.withValues(alpha: 0.1),
+                color: AppTheme.accent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.event, color: AppTheme.accent, size: 20),
@@ -220,7 +219,7 @@ class _MeetupListTile extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: AppTheme.primary.withValues(alpha: 0.1),
+          color: AppTheme.primary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Icon(Icons.event, color: AppTheme.primary),

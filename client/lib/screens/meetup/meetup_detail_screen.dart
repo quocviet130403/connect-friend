@@ -103,7 +103,7 @@ class _MeetupDetailScreenState extends State<MeetupDetailScreen> {
                 runSpacing: 8,
                 children: (_meetup!['tags'] as List).map((tag) => Chip(
                   label: Text('#$tag', style: const TextStyle(fontSize: 13)),
-                  backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
+                  backgroundColor: AppTheme.primary.withValues(alpha: 0.08),
                 )).toList(),
               ).animate().fadeIn(delay: 200.ms),
 
@@ -145,7 +145,7 @@ class _MeetupDetailScreenState extends State<MeetupDetailScreen> {
 
   void _joinMeetup() async {
     try {
-      final res = await _api.joinMeetup(widget.meetupId);
+      await _api.joinMeetup(widget.meetupId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Đã tham gia! 🎉 Mở chat nào!'), backgroundColor: AppTheme.success),
@@ -197,7 +197,7 @@ class _DetailRow extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.1),
+            color: iconColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, size: 20, color: iconColor),

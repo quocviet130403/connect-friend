@@ -58,9 +58,9 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceDark,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.borderDark),
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,9 +103,9 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
                       padding: const EdgeInsets.all(10),
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: AppTheme.success.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppTheme.success.withValues(alpha: 0.3)),
+                        color: AppTheme.success.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppTheme.success.withValues(alpha: 0.2)),
                       ),
                       child: Row(
                         children: [
@@ -147,10 +147,10 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
 
             // Date picker
             ListTile(
-              tileColor: AppTheme.surfaceDark,
+              tileColor: AppTheme.surface,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: AppTheme.borderDark),
+                borderRadius: BorderRadius.circular(14),
+                side: const BorderSide(color: AppTheme.border),
               ),
               leading: const Icon(Icons.calendar_today, color: AppTheme.secondary),
               title: Text('${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
@@ -169,10 +169,10 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
 
             // Time picker
             ListTile(
-              tileColor: AppTheme.surfaceDark,
+              tileColor: AppTheme.surface,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: const BorderSide(color: AppTheme.borderDark),
+                borderRadius: BorderRadius.circular(14),
+                side: const BorderSide(color: AppTheme.border),
               ),
               leading: const Icon(Icons.access_time, color: AppTheme.accent),
               title: Text('${_selectedTime.hour.toString().padLeft(2, '0')}:${_selectedTime.minute.toString().padLeft(2, '0')}'),
@@ -188,16 +188,16 @@ class _CreateMeetupScreenState extends State<CreateMeetupScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceDark,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.borderDark),
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.people, color: AppTheme.primaryLight, size: 20),
+                      const Icon(Icons.people, color: AppTheme.primary, size: 20),
                       const SizedBox(width: 8),
                       const Text('Số người tối đa', style: TextStyle(fontWeight: FontWeight.w600)),
                       const Spacer(),

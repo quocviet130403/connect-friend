@@ -59,7 +59,7 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> {
                           Container(
                             width: 64, height: 64,
                             decoration: BoxDecoration(
-                              color: AppTheme.primary.withValues(alpha: 0.1),
+                              color: AppTheme.primary.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Center(child: Text(_club?['icon_emoji'] ?? '🎯', style: const TextStyle(fontSize: 32))),
@@ -116,7 +116,7 @@ class _ClubDetailScreenState extends State<ClubDetailScreen> {
                     _members.length,
                     (i) => ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppTheme.primary.withValues(alpha: 0.2),
+                        backgroundColor: AppTheme.primary.withValues(alpha: 0.1),
                         child: Text('${i + 1}', style: const TextStyle(color: AppTheme.primary)),
                       ),
                       title: Text(_members[i]['role'] ?? 'member'),
@@ -140,9 +140,9 @@ class _InfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.borderDark),
+        border: Border.all(color: AppTheme.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

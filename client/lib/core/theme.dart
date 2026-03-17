@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Messenger/Instagram-inspired colors
+  // Brand colors — kept from original
   static const Color primary = Color(0xFF0084FF);        // Messenger blue
   static const Color primaryLight = Color(0xFF44A0FF);
   static const Color primaryDark = Color(0xFF0066CC);
@@ -12,41 +12,42 @@ class AppTheme {
   static const Color warning = Color(0xFFFFBE76);
   static const Color error = Color(0xFFFF4757);
 
-  // Dark theme — warm, not GitHub-cold
-  static const Color bgDark = Color(0xFF000000);         // Pure black (like IG)
-  static const Color surfaceDark = Color(0xFF1A1A1A);    // Warm dark
-  static const Color cardDark = Color(0xFF262626);       // IG card color
-  static const Color borderDark = Color(0xFF363636);     // Subtle border
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFFBCBCBC);  // Brighter for contrast
-  static const Color textMuted = Color(0xFF8E8E8E);      // Visible on black bg
+  // Light theme palette
+  static const Color bg = Color(0xFFFFFFFF);
+  static const Color surface = Color(0xFFF5F7FA);
+  static const Color card = Color(0xFFFFFFFF);
+  static const Color border = Color(0xFFE8ECF0);
+  static const Color textPrimary = Color(0xFF1A1D26);
+  static const Color textSecondary = Color(0xFF6B7280);
+  static const Color textMuted = Color(0xFF9CA3AF);
 
   // Chat-specific
   static const Color myBubble = Color(0xFF0084FF);       // Messenger blue
-  static const Color otherBubble = Color(0xFF303030);    // Dark grey
-  static const Color inputBg = Color(0xFF303030);
+  static const Color otherBubble = Color(0xFFF0F2F5);    // Light grey
+  static const Color inputBg = Color(0xFFF0F2F5);
 
-  static ThemeData get darkTheme {
+  static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: bgDark,
-      colorScheme: const ColorScheme.dark(
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: bg,
+      colorScheme: const ColorScheme.light(
         primary: primary,
         secondary: secondary,
-        surface: surfaceDark,
+        surface: surface,
         error: error,
       ),
       textTheme: GoogleFonts.interTextTheme(
-        ThemeData.dark().textTheme,
+        ThemeData.light().textTheme,
       ).apply(
         bodyColor: textPrimary,
         displayColor: textPrimary,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: bgDark,
+        backgroundColor: bg,
         elevation: 0,
-        scrolledUnderElevation: 0,
+        scrolledUnderElevation: 0.5,
+        surfaceTintColor: Colors.transparent,
         centerTitle: false,
         titleTextStyle: GoogleFonts.inter(
           color: textPrimary,
@@ -56,31 +57,34 @@ class AppTheme {
         iconTheme: const IconThemeData(color: textPrimary),
       ),
       cardTheme: CardThemeData(
-        color: cardDark,
+        color: card,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: borderDark.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: border.withValues(alpha: 0.7)),
         ),
+        shadowColor: Colors.black.withValues(alpha: 0.04),
         margin: EdgeInsets.zero,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: cardDark,
+        fillColor: surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(24),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(24),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         hintStyle: const TextStyle(color: textMuted),
+        labelStyle: const TextStyle(color: textSecondary),
+        prefixIconColor: textMuted,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -89,7 +93,7 @@ class AppTheme {
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(14),
           ),
           textStyle: GoogleFonts.inter(
             fontSize: 15,
@@ -102,39 +106,70 @@ class AppTheme {
           foregroundColor: primary,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(14),
           ),
-          side: const BorderSide(color: borderDark),
+          side: const BorderSide(color: border),
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: bgDark,
+        backgroundColor: bg,
         selectedItemColor: primary,
         unselectedItemColor: textMuted,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: bg,
+        indicatorColor: primary.withValues(alpha: 0.1),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: primary);
+          }
+          return GoogleFonts.inter(fontSize: 12, color: textMuted);
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: primary, size: 24);
+          }
+          return const IconThemeData(color: textMuted, size: 24);
+        }),
+      ),
       chipTheme: ChipThemeData(
-        backgroundColor: cardDark,
-        selectedColor: primary.withValues(alpha: 0.2),
+        backgroundColor: surface,
+        selectedColor: primary.withValues(alpha: 0.12),
         labelStyle: GoogleFonts.inter(fontSize: 13, color: textPrimary),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: borderDark),
+          side: const BorderSide(color: border),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       ),
       dividerTheme: const DividerThemeData(
-        color: borderDark,
+        color: border,
         thickness: 0.5,
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: primary,
         foregroundColor: Colors.white,
-        elevation: 2,
+        elevation: 3,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(16),
         ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: bg,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      listTileTheme: const ListTileThemeData(
+        iconColor: textSecondary,
       ),
     );
   }
