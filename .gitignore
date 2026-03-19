@@ -28,5 +28,6 @@ Thumbs.db
 
 # Flutter
 client/build/
+!client/build/web/
 client/.dart_tool/
 client/.packages

@@ -62,6 +62,17 @@ build-apk:
 build-ios:
 	cd client && flutter build ios --release
 
+# Build Flutter web
+build-web:
+	cd client && flutter build web --release
+
+# Start frontend Docker (port 5000)
+client-docker:
+	docker compose up -d --build client
+
+# Rebuild frontend only
+build-client:
+	docker compose build client
 
 
 # ---------- Database ----------
