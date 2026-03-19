@@ -27,7 +27,7 @@ Thumbs.db
 *.log
 
 # Flutter
-client/build/
+client/build/*
 !client/build/web/
 client/.dart_tool/
 client/.packages
