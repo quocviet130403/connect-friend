@@ -1,4 +1,4 @@
-.PHONY: dev up down build logs clean client client-web client-ios client-build client-rebuild
+.PHONY: dev up down build logs clean client client-web client-ios
 
 # Start all services (MongoDB + Redis + Server)
 up:
@@ -62,16 +62,7 @@ build-apk:
 build-ios:
 	cd client && flutter build ios --release
 
-# Build and deploy client as Docker container (port 3000)
-client-build:
-	docker compose up -d --build client
-	@echo "Client running at http://localhost:3000"
 
-# Force rebuild client
-client-rebuild:
-	docker compose build --no-cache client
-	docker compose up -d client
-	@echo "Client rebuilt and running at http://localhost:3000"
 
 # ---------- Database ----------
 
