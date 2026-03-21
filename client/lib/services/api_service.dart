@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/constants.dart';
@@ -6,6 +7,10 @@ import '../core/constants.dart';
 class ApiService {
   String? _accessToken;
   String? _refreshToken;
+
+  // HTTP client with timeout
+  final http.Client _client = http.Client();
+  static const _timeout = Duration(seconds: 15);
 
   // Singleton
   static final ApiService _instance = ApiService._internal();
@@ -48,35 +53,54 @@ class ApiService {
 
   Future<Map<String, dynamic>> get(String path, {Map<String, String>? query}) async {
     final uri = Uri.parse('$baseUrl$path').replace(queryParameters: query);
-    final res = await http.get(uri, headers: _headers);
+    debugPrint('[API] GET $uri');
+    final res = await _client.get(uri, headers: _headers).timeout(_timeout);
     return _handleResponse(res);
   }
 
   Future<Map<String, dynamic>> post(String path, Map<String, dynamic> body) async {
-    final res = await http.post(
-      Uri.parse('$baseUrl$path'),
+    final uri = Uri.parse('$baseUrl$path');
+    debugPrint('[API] POST $uri');
+    final res = await _client.post(
+      uri,
       headers: _headers,
       body: jsonEncode(body),
-    );
+    ).timeout(_timeout);
     return _handleResponse(res);
   }
 
   Future<Map<String, dynamic>> put(String path, [Map<String, dynamic>? body]) async {
-    final res = await http.put(
-      Uri.parse('$baseUrl$path'),
+    final uri = Uri.parse('$baseUrl$path');
+    debugPrint('[API] PUT $uri');
+    final res = await _client.put(
+      uri,
       headers: _headers,
       body: body != null ? jsonEncode(body) : null,
-    );
+    ).timeout(_timeout);
     return _handleResponse(res);
   }
 
   Future<Map<String, dynamic>> delete(String path) async {
-    final res = await http.delete(Uri.parse('$baseUrl$path'), headers: _headers);
+    final uri = Uri.parse('$baseUrl$path');
+    debugPrint('[API] DELETE $uri');
+    final res = await _client.delete(uri, headers: _headers).timeout(_timeout);
     return _handleResponse(res);
   }
 
   Map<String, dynamic> _handleResponse(http.Response res) {
-    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    debugPrint('[API] Response ${res.statusCode}: ${res.body.length > 200 ? res.body.substring(0, 200) : res.body}');
+    
+    Map<String, dynamic> body;
+    try {
+      body = jsonDecode(res.body) as Map<String, dynamic>;
+    } catch (_) {
+      // Response is not valid JSON (e.g., HTML error page from nginx)
+      throw ApiException(
+        statusCode: res.statusCode,
+        message: 'Server error (${res.statusCode}). Vui lòng thử lại sau.',
+      );
+    }
+    
     if (res.statusCode >= 200 && res.statusCode < 300) {
       return body;
     }

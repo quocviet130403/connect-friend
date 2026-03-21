@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
@@ -20,8 +21,9 @@ class AuthProvider extends ChangeNotifier {
         if (res['success'] == true) {
           _user = res['data'] as Map<String, dynamic>?;
         }
-      } catch (_) {
-        // Token may be expired
+      } catch (e) {
+        // Token may be expired or network error
+        debugPrint('[AuthProvider] init error: $e');
         await _api.clearTokens();
       }
     }
@@ -43,6 +45,12 @@ class AuthProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return false;
+    } catch (e) {
+      debugPrint('[AuthProvider] register error: $e');
+      _error = 'Lỗi kết nối mạng. Vui lòng thử lại.';
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
   }
 
@@ -58,6 +66,12 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } on ApiException catch (e) {
       _error = e.message;
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      debugPrint('[AuthProvider] login error: $e');
+      _error = 'Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.';
       _isLoading = false;
       notifyListeners();
       return false;
